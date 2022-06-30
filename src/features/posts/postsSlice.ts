@@ -12,7 +12,7 @@ export interface Reactions {
 export interface PostItem {
     id: string;
     title: string;
-    content: string;
+    body: string;
     date: string;
     userId?: string;
     reactions: Reactions;
@@ -22,7 +22,7 @@ const initialState: PostItem[] = [
     {
         id: "1",
         title: "Post 1",
-        content: "Content 1",
+        body: "Content 1",
         date: sub(new Date(), {minutes: 10}).toISOString(),
         reactions: {
             thumbsUp: 0,
@@ -36,7 +36,7 @@ const initialState: PostItem[] = [
     {
         id: "2",
         title: "Post 2",
-        content: "Content 2",
+        body: "Content 2",
         date: sub(new Date(), {minutes: 20}).toISOString(),
         reactions: {
             thumbsUp: 0,
@@ -61,12 +61,12 @@ const postSlice = createSlice(
                 reducer(state, action: PayloadAction<PostItem>) {
                     state.push(action.payload);
                 },
-                prepare(title: string, content: string, userId: string) {
+                prepare(title: string, body: string, userId: string) {
                     return {
                         payload: {
                             id: nanoid(),
                             title,
-                            content,
+                            body,
                             userId,
                             date: new Date().toISOString(),
                             reactions: {
