@@ -1,6 +1,10 @@
 import React from "react";
+import Counter from "./features/counter/counter";
 
 export const App = () => (
-    <div>hello world</div>
+    <section>
+        <p>hello world</p>
+        <Counter/>
+    </section>
 );
 
