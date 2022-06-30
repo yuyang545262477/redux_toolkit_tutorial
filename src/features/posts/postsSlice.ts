@@ -1,5 +1,8 @@
-import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
+import axios from "axios";
 import {sub} from "date-fns";
+
+const POST_URL = "https://jsonplaceholder.typicode.com/posts";
 
 export interface Reactions {
     thumbsUp: number
@@ -18,39 +21,30 @@ export interface PostItem {
     reactions: Reactions;
 }
 
-const initialState: PostItem[] = [
-    {
-        id: "1",
-        title: "Post 1",
-        body: "Content 1",
-        date: sub(new Date(), {minutes: 10}).toISOString(),
-        reactions: {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0,
-        },
+export type TPosts = PostItem[];
+export type TStatus = "idle" | "loading" | "error" | "success";
 
-    },
-    {
-        id: "2",
-        title: "Post 2",
-        body: "Content 2",
-        date: sub(new Date(), {minutes: 20}).toISOString(),
-        reactions: {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0,
-        },
-    },
-];
+export interface PostsState {
+    posts: TPosts;
+    status: TStatus;
+    error: string | null;
+}
+
+
+const initialState: PostsState = {
+    posts: [],
+    status: "idle",
+    error: "",
+};
 
 
 export type PostState = PostItem[];
 
+
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+    const response = await axios(POST_URL);
+    return [...response.data];
+});
 
 const postSlice = createSlice(
     {
@@ -59,7 +53,7 @@ const postSlice = createSlice(
         reducers: {
             postAdded: {
                 reducer(state, action: PayloadAction<PostItem>) {
-                    state.push(action.payload);
+                    state.posts.push(action.payload);
                 },
                 prepare(title: string, body: string, userId: string) {
                     return {
@@ -82,16 +76,49 @@ const postSlice = createSlice(
             },
             reactionAdded(state, action) {
                 const {postId, reaction} = action.payload;
-                const post = state.find(post => post.id === postId);
+                const post = state.posts.find(post => post.id === postId);
                 if (post) {
                     post.reactions[reaction]++;
                 }
             },
         },
+        extraReducers(builder) {
+            builder
+                .addCase(fetchPosts.pending, (state) => {
+                    state.status = "loading";
+                })
+                .addCase(fetchPosts.fulfilled, (state, action) => {
+                    state.status = "success";
+                    //    add Date and reactions
+                    let min = 1;
+                    const loadedPosts = action.payload.map((post) => {
+                        post.date = sub(new Date(), {days: min++}).toISOString();
+                        post.reactions = {
+                            thumbsUp: 0,
+                            wow: 0,
+                            heart: 0,
+                            rocket: 0,
+                            coffee: 0,
+                        };
+                        return post;
+                    });
+                    //    Add any fetched posts to the state
+                    state.posts = state.posts.concat(loadedPosts);
+                })
+                .addCase(fetchPosts.rejected, (state, action) => {
+                    state.status = "error";
+                    state.error = action.error.message;
+                });
+
+
+        },
     },
 );
 //selectors
-export const selectAllPosts = (state: any): PostState => state.posts;
+export const selectAllPosts = (state: any): TPosts => state.posts.posts;
+export const getPostsStatus = (state: any): TStatus => state.posts.status;
+export const getPostError = (state: any): string => state.posts.error;
+
 //actions
 export const {postAdded, reactionAdded} = postSlice.actions;
 export default postSlice.reducer;
