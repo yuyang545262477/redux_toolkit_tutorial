@@ -1,10 +1,13 @@
 import React from "react";
-import Counter from "./features/counter/counter";
+import AddPostForm from "./features/posts/AddPostForm";
+import PostList from "./features/posts/PostList";
 
 export const App = () => (
     <section>
         <p>hello world</p>
-        <Counter/>
+        {/*<Counter/>*/}
+        <AddPostForm/>
+        <PostList/>
     </section>
 );
 
