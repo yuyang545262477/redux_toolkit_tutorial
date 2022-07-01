@@ -138,6 +138,8 @@ const postSlice = createSlice(
 export const selectAllPosts = (state: any): TPosts => state.posts.posts;
 export const getPostsStatus = (state: any): TStatus => state.posts.status;
 export const getPostError = (state: any): string => state.posts.error;
+export const selectPostById = (state, postId): PostItem | undefined => state.posts.posts.find(post => post.id === postId);
+
 
 //actions
 export const {postAdded, reactionAdded} = postSlice.actions;
