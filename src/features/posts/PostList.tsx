@@ -1,10 +1,7 @@
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import PostAuthor from "./postAuthor";
 import PostExcerpt from "./PostExcerpt";
 import {fetchPosts, getPostError, getPostsStatus, selectAllPosts} from "./postsSlice";
-import ReactionBtns from "./reactionButtons";
-import TimeAgo from "./TimeAgo";
 
 const PostList = () => {
     const dispatch = useDispatch();

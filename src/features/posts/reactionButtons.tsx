@@ -20,7 +20,6 @@ const ReactionBtns = ({post}: ReactionBtnProps) => {
         return (
             <button key={name}
                     type={"button"}
-
                     onClick={() => dispatch(reactionAdded({postId: post.id, reaction: name}))}>
                 {emoji} {post.reactions[name] || 0}
             </button>

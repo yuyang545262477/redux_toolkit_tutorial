@@ -3,6 +3,9 @@ import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
 import {App} from "./App";
 import {store} from "./app/store";
+import {fetchUsers} from "./features/users/user.slice";
+
+store.dispatch(fetchUsers());
 
 ReactDOM.render(
     <React.StrictMode>
