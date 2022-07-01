@@ -1,17 +1,20 @@
 import React, {useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
+import {useAppDispatch} from "../../app/store";
 import {selectAllUser} from "../users/user.slice";
-import {postAdded} from "./postsSlice";
+import {addNewPost, TStatus} from "./postsSlice";
 
 const AddPostForm = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const users = useSelector(selectAllUser);
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [userId, setUserId] = useState("");
+    const [addRequestStatus, setAddRequestStatus] = useState<TStatus>("idle");
 
-    const canSave = Boolean(title && content && userId);
+    // const canSave = Boolean(title && content && userId);
+    const canSave = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
 
     const oneTitleChange = (e) => setTitle(e.target.value);
     const oneContentChange = (e) => setContent(e.target.value);
@@ -19,15 +22,19 @@ const AddPostForm = () => {
 
 
     const onSavePostClicked = () => {
-        if (title && content) {
-            dispatch(postAdded(
-                title,
-                content,
-                userId,
-            ));
+        if (!canSave) {
+            return;
+        }
+        try {
+            setAddRequestStatus("loading");
+            dispatch(addNewPost({title, body: content, userId})).unwrap();//unwrap()把异常暴露出来
             setTitle("");
             setContent("");
             setUserId("");
+        } catch (e) {
+            console.error("Failed to save post", e);
+        } finally {
+            setAddRequestStatus("idle");
         }
     };
 

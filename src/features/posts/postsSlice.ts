@@ -12,6 +12,14 @@ export interface Reactions {
     coffee: number,
 }
 
+const initialReactions: Reactions = {
+    thumbsUp: 0,
+    wow: 0,
+    heart: 0,
+    rocket: 0,
+    coffee: 0,
+};
+
 export interface PostItem {
     id: string;
     title: string;
@@ -40,11 +48,16 @@ const initialState: PostsState = {
 
 export type PostState = PostItem[];
 
-
+/*effects*/
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
     const response = await axios(POST_URL);
     return [...response.data];
 });
+export const addNewPost = createAsyncThunk("posts/addNewPost", async (postItem: Partial<PostItem>) => {
+    const response = await axios.post(POST_URL, postItem);
+    return response.data;
+});
+
 
 const postSlice = createSlice(
     {
@@ -108,6 +121,13 @@ const postSlice = createSlice(
                 .addCase(fetchPosts.rejected, (state, action) => {
                     state.status = "error";
                     state.error = action.error.message;
+                })
+                .addCase(addNewPost.fulfilled, (state, action) => {
+                    action.payload.userId = Number(action.payload.userId);
+                    action.payload.date = new Date().toISOString();
+                    action.payload.reactions = initialReactions;
+                    console.log(action.payload);
+                    state.posts.push(action.payload);
                 });
 
 
