@@ -2,25 +2,37 @@
 
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAppDispatch} from "../../app/store";
 import {selectAllUser} from "../users/user.slice";
-import {addNewPost, TStatus} from "./postsSlice";
+import {addNewPost, selectPostById, TStatus, updatePost} from "./postsSlice";
 
-const AddPostForm = () => {
-    const dispatch = useAppDispatch();
+const EditPost = () => {
+    const {postId} = useParams();
+    const navigate = useNavigate();
+    const post = useSelector(state => selectPostById(state, Number(postId)));
     const users = useSelector(selectAllUser);
 
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [userId, setUserId] = useState("");
-    const [addRequestStatus, setAddRequestStatus] = useState<TStatus>("idle");
+    const [title, setTitle] = useState(post.title);
+    const [content, setContent] = useState(post.body);
+    const [userId, setUserId] = useState(post.id);
+    const [requestStatus, setRequestStatus] = useState<TStatus>("idle");
 
-    // const canSave = Boolean(title && content && userId);
-    const canSave = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
+    const dispatch = useAppDispatch();
+
+    if (!post) {
+        return (
+            <section>
+                <h2>Post not found!</h2>
+            </section>
+        );
+    }
+
 
     const oneTitleChange = (e) => setTitle(e.target.value);
     const oneContentChange = (e) => setContent(e.target.value);
     const onAuthorChange = (e) => setUserId(e.target.value);
+    const canSave = [title, content, userId].every(Boolean) && requestStatus === "idle";
 
 
     const onSavePostClicked = () => {
@@ -28,15 +40,16 @@ const AddPostForm = () => {
             return;
         }
         try {
-            setAddRequestStatus("loading");
-            dispatch(addNewPost({title, body: content, userId})).unwrap();//unwrap()把异常暴露出来
+            setRequestStatus("loading");
+            dispatch(updatePost({id: post.id, title, body: content, userId, reactions: post.reactions})).unwrap();//unwrap()把异常暴露出来
             setTitle("");
             setContent("");
             setUserId("");
+            navigate(`/post/${postId}`);
         } catch (e) {
             console.error("Failed to save post", e);
         } finally {
-            setAddRequestStatus("idle");
+            setRequestStatus("idle");
         }
     };
 
@@ -47,7 +60,7 @@ const AddPostForm = () => {
 
     return (
         <section>
-            <h2>Add Post</h2>
+            <h2>Edit Post</h2>
             <form>
                 <label htmlFor={"postTitle"}>Post Title:</label>
                 <input type={"text"}
@@ -75,4 +88,4 @@ const AddPostForm = () => {
     );
 };
 
-export default AddPostForm;
+export default EditPost;

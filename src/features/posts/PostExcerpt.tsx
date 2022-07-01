@@ -12,7 +12,7 @@ interface PostExcerptProps {
 const PostExcerpt = ({post}: PostExcerptProps) => {
     return (
         <article key={post.id}>
-            <h3>{post.title}</h3>
+            <h2>{post.title}</h2>
             <p>{post.body.substring(0, 100)}</p>
             <p>
                 <Link to={`post/${post.id}`}>View Post </Link>

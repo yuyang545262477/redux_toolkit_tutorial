@@ -49,13 +49,26 @@ const initialState: PostsState = {
 export type PostState = PostItem[];
 
 /*effects*/
+//获取posts
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
     const response = await axios(POST_URL);
     return [...response.data];
 });
+//新增post
 export const addNewPost = createAsyncThunk("posts/addNewPost", async (postItem: Partial<PostItem>) => {
     const response = await axios.post(POST_URL, postItem);
     return response.data;
+});
+//更新post
+export const updatePost = createAsyncThunk("posts/updatePost", async (postItem: Partial<PostItem>) => {
+    const response = await axios.put(`${POST_URL}/${postItem.id}`, postItem, {});
+    return response.data;
+});
+//删除post
+export const deletePost = createAsyncThunk("posts/deletePost", async (postItem: Partial<PostItem>) => {
+    const response = await axios.delete(`${POST_URL}/${postItem.id}`);
+    if (response.status === 200) return postItem;
+    return `${response.status}: ${response.statusText}`;
 });
 
 
@@ -128,9 +141,28 @@ const postSlice = createSlice(
                     action.payload.reactions = initialReactions;
                     console.log(action.payload);
                     state.posts.push(action.payload);
+                })
+                .addCase(updatePost.fulfilled, (state, action) => {
+                    if (!action.payload?.id) {
+                        console.log("Update could not complete");
+                        console.log(action.payload);
+                        return;
+                    }
+                    const {id} = action.payload;
+                    action.payload.date = new Date().toISOString();
+                    const otherPosts = state.posts.filter(post => post.id !== id);
+                    state.posts = [...otherPosts, action.payload];
+                })
+                .addCase(deletePost.fulfilled, (state, action) => {
+                    if (!(<PostItem>action.payload).id) {
+                        console.log("Delete could not complete");
+                        console.log(action.payload);
+                        return;
+                    }
+                    const {id} = action.payload as PostItem;
+                    const otherPosts = state.posts.filter(post => post.id !== id);
+                    state.posts = [...otherPosts];
                 });
-
-
         },
     },
 );

@@ -1,6 +1,6 @@
 import React from "react";
 import {useSelector} from "react-redux";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import PostAuthor from "./postAuthor";
 import {selectPostById} from "./postsSlice";
 import ReactionBtns from "./reactionButtons";
@@ -21,6 +21,7 @@ const SignalPostPage = () => {
             <h3>{post.title}</h3>
             <p>{post.body.substring(0, 100)}</p>
             <p>
+                <Link to={`/post/edit/${post.id}`}>Edit Post </Link>
                 <PostAuthor userId={post.userId}/>
                 <TimeAgo timestamp={post.date}/>
             </p>

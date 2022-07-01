@@ -1,10 +1,11 @@
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {useAppDispatch} from "../../app/store";
 import PostExcerpt from "./PostExcerpt";
 import {fetchPosts, getPostError, getPostsStatus, selectAllPosts} from "./postsSlice";
 
 const PostList = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const posts = useSelector(selectAllPosts);
     const postStatus = useSelector(getPostsStatus);
@@ -29,7 +30,6 @@ const PostList = () => {
 
     return (
         <section>
-            <h2>Posts</h2>
             {content}
         </section>
     );
