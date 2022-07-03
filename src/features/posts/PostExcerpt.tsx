@@ -1,15 +1,18 @@
+import {EntityId} from "@reduxjs/toolkit";
 import React from "react";
+import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import PostAuthor from "./postAuthor";
-import {PostItem} from "./postsSlice";
+import {selectPostById} from "./postsSlice";
 import ReactionBtns from "./reactionButtons";
 import TimeAgo from "./TimeAgo";
 
 interface PostExcerptProps {
-    post: PostItem;
+    postId: EntityId;
 }
 
-const PostExcerpt = ({post}: PostExcerptProps) => {
+const PostExcerpt = ({postId}: PostExcerptProps) => {
+    const post = useSelector(state => selectPostById(state, postId));
     return (
         <article key={post.id}>
             <h2>{post.title}</h2>
