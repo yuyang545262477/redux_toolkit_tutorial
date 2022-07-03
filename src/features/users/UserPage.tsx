@@ -8,6 +8,7 @@ const UserPage = () => {
     const {userId} = useParams();
     const user = useSelector(state => selectUserById(state, Number(userId)));
 
+
     const postForUser = useSelector(state => selectPostsByUserId(state, Number(userId)));
 
     const postTitles = postForUser.map(post => (
