@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSelector, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
 import {sub} from "date-fns";
 
@@ -36,6 +36,7 @@ export interface PostsState {
     posts: TPosts;
     status: TStatus;
     error: string | null;
+    count: number;
 }
 
 
@@ -43,6 +44,7 @@ const initialState: PostsState = {
     posts: [],
     status: "idle",
     error: "",
+    count: 0,
 };
 
 
@@ -79,35 +81,38 @@ const postSlice = createSlice(
         name: "posts",
         initialState,
         reducers: {
-            postAdded: {
-                reducer(state, action: PayloadAction<PostItem>) {
-                    state.posts.push(action.payload);
-                },
-                prepare(title: string, body: string, userId: string) {
-                    return {
-                        payload: {
-                            id: nanoid(),
-                            title,
-                            body,
-                            userId,
-                            date: new Date().toISOString(),
-                            reactions: {
-                                thumbsUp: 0,
-                                wow: 0,
-                                heart: 0,
-                                rocket: 0,
-                                coffee: 0,
-                            },
-                        },
-                    };
-                },
-            },
+            // postAdded: {
+            //     reducer(state, action: PayloadAction<PostItem>) {
+            //         state.posts.push(action.payload);
+            //     },
+            //     prepare(title: string, body: string, userId: string) {
+            //         return {
+            //             payload: {
+            //                 id: nanoid(),
+            //                 title,
+            //                 body,
+            //                 userId,
+            //                 date: new Date().toISOString(),
+            //                 reactions: {
+            //                     thumbsUp: 0,
+            //                     wow: 0,
+            //                     heart: 0,
+            //                     rocket: 0,
+            //                     coffee: 0,
+            //                 },
+            //             },
+            //         };
+            //     },
+            // },
             reactionAdded(state, action) {
                 const {postId, reaction} = action.payload;
                 const post = state.posts.find(post => post.id === postId);
                 if (post) {
                     post.reactions[reaction]++;
                 }
+            },
+            incrementCount(state) {
+                state.count = state.count + 1;
             },
         },
         extraReducers(builder) {
@@ -172,9 +177,13 @@ const postSlice = createSlice(
 export const selectAllPosts = (state: any): TPosts => state.posts.posts;
 export const getPostsStatus = (state: any): TStatus => state.posts.status;
 export const getPostError = (state: any): string => state.posts.error;
+export const getPostsCount = (state: any): number => state.posts.count;
+
 export const selectPostById = (state, postId): PostItem | undefined => state.posts.posts.find(post => post.id === postId);
-
-
+export const selectPostsByUserId = createSelector(
+    [selectAllPosts, (state, userId) => userId],
+    (posts, userId) => posts.filter(post => post.userId === userId),
+);
 //actions
-export const {postAdded, reactionAdded} = postSlice.actions;
+export const {reactionAdded, incrementCount} = postSlice.actions;
 export default postSlice.reducer;
