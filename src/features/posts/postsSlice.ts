@@ -59,11 +59,13 @@ export const addNewPost = createAsyncThunk("posts/addNewPost", async (postItem: 
     const response = await axios.post(POST_URL, postItem);
     return response.data;
 });
+
 //更新post
 export const updatePost = createAsyncThunk("posts/updatePost", async (postItem: Partial<PostItem>) => {
     const response = await axios.put(`${POST_URL}/${postItem.id}`, postItem, {});
     return response.data;
 });
+
 //删除post
 export const deletePost = createAsyncThunk("posts/deletePost", async (postItem: Partial<PostItem>) => {
     const response = await axios.delete(`${POST_URL}/${postItem.id}`);

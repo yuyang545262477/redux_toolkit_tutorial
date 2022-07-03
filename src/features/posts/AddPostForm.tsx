@@ -2,12 +2,14 @@
 
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../app/store";
 import {selectAllUser} from "../users/user.slice";
 import {addNewPost, TStatus} from "./postsSlice";
 
 const AddPostForm = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const users = useSelector(selectAllUser);
 
     const [title, setTitle] = useState("");
@@ -33,13 +35,14 @@ const AddPostForm = () => {
             setTitle("");
             setContent("");
             setUserId("");
+            navigate("/");
         } catch (e) {
             console.error("Failed to save post", e);
         } finally {
             setAddRequestStatus("idle");
         }
     };
-
+    
     const usersOptions = users.map((user) => (
         <option key={user.id} value={user.id}>{user.name}</option>
     ));
